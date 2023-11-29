@@ -27,6 +27,11 @@ struct PrepareLicenseList: BuildToolPlugin {
 
     // This command does not work as expected in Xcode 14.2.
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+        if let isInPreview = ProcessInfo().environment["ENABLE_PREVIEWS"] as? String {
+            if isInPreview.uppercased() == "YES" {
+                return []
+            }
+        }
         let executablePath = try context.tool(named: "spp").path
         let sourcePackagesPath = try sourcePackages(context.pluginWorkDirectory)
         let outputPath = context.pluginWorkDirectory.appending(["Resources"])
@@ -57,6 +62,11 @@ extension PrepareLicenseList: XcodeBuildToolPlugin {
         context: XcodeProjectPlugin.XcodePluginContext,
         target: XcodeProjectPlugin.XcodeTarget
     ) throws -> [PackagePlugin.Command] {
+        if let isInPreview = ProcessInfo().environment["ENABLE_PREVIEWS"] as? String {
+            if isInPreview.uppercased() == "YES" {
+                return []
+            }
+        }
         let executablePath = try context.tool(named: "spp").path
         let sourcePackagesPath = try sourcePackages(context.pluginWorkDirectory)
         let outputPath = context.pluginWorkDirectory.appending(["Resources"])
